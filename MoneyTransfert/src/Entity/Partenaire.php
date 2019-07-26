@@ -40,6 +40,12 @@ class Partenaire
      */
     private $userP;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="partenaire")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $user;
+
     public function __construct()
     {
         $this->AdminP = new ArrayCollection();
@@ -137,6 +143,18 @@ class Partenaire
                 $userP->setPartenaire(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
 
         return $this;
     }

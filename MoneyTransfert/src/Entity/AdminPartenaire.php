@@ -24,6 +24,12 @@ class AdminPartenaire
      */
     private $partenaire;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\User", inversedBy="adminP")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $user;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -37,6 +43,18 @@ class AdminPartenaire
     public function setPartenaire(?Partenaire $partenaire): self
     {
         $this->partenaire = $partenaire;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): self
+    {
+        $this->user = $user;
 
         return $this;
     }

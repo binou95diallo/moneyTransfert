@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Security\Core\User\UserInterface;
@@ -69,6 +71,28 @@ class User implements UserInterface
      * @ORM\Column(type="string", length=255)
      */
     private $status;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\Partenaire", mappedBy="user")
+     */
+    private $partenaire;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\AdminPartenaire", mappedBy="user")
+     */
+    private $adminP;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\UserPartenaire", mappedBy="user")
+     */
+    private $userP;
+
+    public function __construct()
+    {
+        $this->partenaire = new ArrayCollection();
+        $this->adminP = new ArrayCollection();
+        $this->userP = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -223,6 +247,99 @@ class User implements UserInterface
     public function setStatus(string $status): self
     {
         $this->status = $status;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|Partenaire[]
+     */
+    public function getPartenaire(): Collection
+    {
+        return $this->partenaire;
+    }
+
+    public function addPartenaire(Partenaire $partenaire): self
+    {
+        if (!$this->partenaire->contains($partenaire)) {
+            $this->partenaire[] = $partenaire;
+            $partenaire->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removePartenaire(Partenaire $partenaire): self
+    {
+        if ($this->partenaire->contains($partenaire)) {
+            $this->partenaire->removeElement($partenaire);
+            // set the owning side to null (unless already changed)
+            if ($partenaire->getUser() === $this) {
+                $partenaire->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|AdminPartenaire[]
+     */
+    public function getAdminP(): Collection
+    {
+        return $this->adminP;
+    }
+
+    public function addAdminP(AdminPartenaire $adminP): self
+    {
+        if (!$this->adminP->contains($adminP)) {
+            $this->adminP[] = $adminP;
+            $adminP->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeAdminP(AdminPartenaire $adminP): self
+    {
+        if ($this->adminP->contains($adminP)) {
+            $this->adminP->removeElement($adminP);
+            // set the owning side to null (unless already changed)
+            if ($adminP->getUser() === $this) {
+                $adminP->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|UserPartenaire[]
+     */
+    public function getUserP(): Collection
+    {
+        return $this->userP;
+    }
+
+    public function addUserP(UserPartenaire $userP): self
+    {
+        if (!$this->userP->contains($userP)) {
+            $this->userP[] = $userP;
+            $userP->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeUserP(UserPartenaire $userP): self
+    {
+        if ($this->userP->contains($userP)) {
+            $this->userP->removeElement($userP);
+            // set the owning side to null (unless already changed)
+            if ($userP->getUser() === $this) {
+                $userP->setUser(null);
+            }
+        }
 
         return $this;
     }
