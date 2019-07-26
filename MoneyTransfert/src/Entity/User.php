@@ -60,6 +60,11 @@ class User implements UserInterface
      */
     private $matricule;
 
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    private $profil;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -189,6 +194,18 @@ class User implements UserInterface
     public function setMatricule(string $matricule): self
     {
         $this->matricule = $matricule;
+
+        return $this;
+    }
+
+    public function getProfil(): ?string
+    {
+        return $this->profil;
+    }
+
+    public function setProfil(string $profil): self
+    {
+        $this->profil = $profil;
 
         return $this;
     }

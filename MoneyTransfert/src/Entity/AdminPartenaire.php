@@ -19,41 +19,6 @@ class AdminPartenaire
     private $id;
 
     /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $matricule;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $username;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $password;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $nomComplet;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $adresse;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $telephone;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $email;
-
-    /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Partenaire", inversedBy="adminP")
      * @ORM\JoinColumn(nullable=false)
      */
