@@ -63,7 +63,7 @@ class Partenaire
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\AdminPartenaire", mappedBy="partenaire")
      */
-    private $adminP;
+    private $AdminP;
 
     /**
      * @ORM\OneToOne(targetEntity="App\Entity\BankAccount", mappedBy="partenaire", cascade={"persist", "remove"})
@@ -77,10 +77,13 @@ class Partenaire
 
     public function __construct()
     {
-        $this->adminP = new ArrayCollection();
+        $this->AdminP = new ArrayCollection();
         $this->userP = new ArrayCollection();
     }
 
+
+    
+    
     public function getId(): ?int
     {
         return $this->id;
@@ -187,13 +190,13 @@ class Partenaire
      */
     public function getAdminP(): Collection
     {
-        return $this->adminP;
+        return $this->AdminP;
     }
 
     public function addAdminP(AdminPartenaire $adminP): self
     {
-        if (!$this->adminP->contains($adminP)) {
-            $this->adminP[] = $adminP;
+        if (!$this->AdminP->contains($adminP)) {
+            $this->AdminP[] = $adminP;
             $adminP->setPartenaire($this);
         }
 
@@ -202,8 +205,8 @@ class Partenaire
 
     public function removeAdminP(AdminPartenaire $adminP): self
     {
-        if ($this->adminP->contains($adminP)) {
-            $this->adminP->removeElement($adminP);
+        if ($this->AdminP->contains($adminP)) {
+            $this->AdminP->removeElement($adminP);
             // set the owning side to null (unless already changed)
             if ($adminP->getPartenaire() === $this) {
                 $adminP->setPartenaire(null);

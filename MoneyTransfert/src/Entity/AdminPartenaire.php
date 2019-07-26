@@ -124,4 +124,5 @@ class AdminPartenaire
 
         return $this;
     }
+
 }
