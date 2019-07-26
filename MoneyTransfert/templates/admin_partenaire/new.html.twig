@@ -1,0 +1,11 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New AdminPartenaire{% endblock %}
+
+{% block body %}
+    <h1>Create new AdminPartenaire</h1>
+
+    {{ include('admin_partenaire/_form.html.twig') }}
+
+    <a href="{{ path('admin_partenaire_index') }}">back to list</a>
+{% endblock %}

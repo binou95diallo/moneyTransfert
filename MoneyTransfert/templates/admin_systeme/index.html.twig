@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}AdminSysteme index{% endblock %}
+
+{% block body %}
+    <h1>AdminSysteme index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Matricule</th>
+                <th>Username</th>
+                <th>Password</th>
+                <th>NomComplet</th>
+                <th>Adresse</th>
+                <th>Telephone</th>
+                <th>Email</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for admin_systeme in admin_systemes %}
+            <tr>
+                <td>{{ admin_systeme.id }}</td>
+                <td>{{ admin_systeme.matricule }}</td>
+                <td>{{ admin_systeme.username }}</td>
+                <td>{{ admin_systeme.password }}</td>
+                <td>{{ admin_systeme.nomComplet }}</td>
+                <td>{{ admin_systeme.adresse }}</td>
+                <td>{{ admin_systeme.telephone }}</td>
+                <td>{{ admin_systeme.email }}</td>
+                <td>
+                    <a href="{{ path('admin_systeme_show', {'id': admin_systeme.id}) }}">show</a>
+                    <a href="{{ path('admin_systeme_edit', {'id': admin_systeme.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="9">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('admin_systeme_new') }}">Create new</a>
+{% endblock %}

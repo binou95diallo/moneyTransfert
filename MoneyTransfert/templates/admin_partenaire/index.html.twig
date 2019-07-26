@@ -1,0 +1,47 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}AdminPartenaire index{% endblock %}
+
+{% block body %}
+    <h1>AdminPartenaire index</h1>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Matricule</th>
+                <th>Username</th>
+                <th>Password</th>
+                <th>NomComplet</th>
+                <th>Adresse</th>
+                <th>Telephone</th>
+                <th>Email</th>
+                <th>actions</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for admin_partenaire in admin_partenaires %}
+            <tr>
+                <td>{{ admin_partenaire.id }}</td>
+                <td>{{ admin_partenaire.matricule }}</td>
+                <td>{{ admin_partenaire.username }}</td>
+                <td>{{ admin_partenaire.password }}</td>
+                <td>{{ admin_partenaire.nomComplet }}</td>
+                <td>{{ admin_partenaire.adresse }}</td>
+                <td>{{ admin_partenaire.telephone }}</td>
+                <td>{{ admin_partenaire.email }}</td>
+                <td>
+                    <a href="{{ path('admin_partenaire_show', {'id': admin_partenaire.id}) }}">show</a>
+                    <a href="{{ path('admin_partenaire_edit', {'id': admin_partenaire.id}) }}">edit</a>
+                </td>
+            </tr>
+        {% else %}
+            <tr>
+                <td colspan="9">no records found</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ path('admin_partenaire_new') }}">Create new</a>
+{% endblock %}
