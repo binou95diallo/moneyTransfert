@@ -4,14 +4,19 @@ namespace App\Controller;
 
 use App\Entity\AdminSysteme;
 use App\Form\AdminSystemeType;
+use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\AdminSystemeRepository;
-use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
+use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+
 
 /**
- * @Route("/admin/systeme")
+ * @Route("/adminSysteme")
  */
 class AdminSystemeController extends AbstractController
 {
@@ -26,27 +31,47 @@ class AdminSystemeController extends AbstractController
     }
 
     /**
-     * @Route("/new", name="admin_systeme_new", methods={"GET","POST"})
+     * @Route("/ajout", name="adminSystemeNew", methods={"POST"})
      */
-    public function new(Request $request): Response
+    public function ajoutadminS(Request $request, EntityManagerInterface $entityManager, SerializerInterface $serializer, ValidatorInterface $validator): Response
     {
-        $adminSysteme = new AdminSysteme();
-        $form = $this->createForm(AdminSystemeType::class, $adminSysteme);
-        $form->handleRequest($request);
+        $values = json_decode($request->getContent());
+        if(isset($values->matricule,$values->username,$values->nomComplet,$values->username,$values->adresse,$values->telephone,$values->password,$values->email)) {
+            $adminSysteme = new AdminSysteme();
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $entityManager = $this->getDoctrine()->getManager();
+            $adminSysteme->setMatricule($values->matricule);
+            $adminSysteme->setUsername($values->username);
+            $adminSysteme->setNomComplet($values->nomComplet);
+            $adminSysteme->setAdresse($values->adresse);
+            $adminSysteme->setTelephone($values->telephone);
+            $adminSysteme->setEmail($values->email);
+            $adminSysteme->setPassword($values->password);
+            $errors = $validator->validate($adminSysteme);
+            if(count($errors)) {
+                $errors = $serializer->serialize($errors, 'json');
+                return new Response($errors, 500, [
+                    'Content-Type' => 'application/json'
+                ]);
+            }
             $entityManager->persist($adminSysteme);
             $entityManager->flush();
 
-            return $this->redirectToRoute('admin_systeme_index');
-        }
+            $data = [
+                'status' => 201,
+                'message' => 'L\'utilisateur a été créé'
+            ];
 
-        return $this->render('admin_systeme/new.html.twig', [
-            'admin_systeme' => $adminSysteme,
-            'form' => $form->createView(),
-        ]);
+            return new JsonResponse($data, 201);
+        }
+        $data = [
+            'status' => 500,
+            'message' => 'Vous devez renseigner les clés username et password'
+        ];
+        return new JsonResponse($data, 500);
     }
+
+
+
 
     /**
      * @Route("/{id}", name="admin_systeme_show", methods={"GET"})

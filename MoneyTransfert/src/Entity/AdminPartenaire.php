@@ -54,7 +54,7 @@ class AdminPartenaire
     private $email;
 
     /**
-     * @ORM\ManyToOne(targetEntity="App\Entity\Partenaire", inversedBy="adminP")
+     * @ORM\ManyToOne(targetEntity="App\Entity\Partenaire", inversedBy="AdminP")
      * @ORM\JoinColumn(nullable=false)
      */
     private $partenaire;
@@ -159,4 +159,5 @@ class AdminPartenaire
 
         return $this;
     }
+
 }
