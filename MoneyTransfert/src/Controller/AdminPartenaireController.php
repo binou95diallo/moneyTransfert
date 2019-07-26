@@ -46,13 +46,6 @@ class AdminPartenaireController extends AbstractController
         $form->handleRequest($request);
         $values=json_decode($request->getContent());
         $partenaire=$this->getDoctrine()->getManager()->getRepository(Partenaire::class)->find($values->partenaire);
-        $adminPartenaire->setMatricule($values->matricule);
-        $adminPartenaire->setUsername($values->username);
-        $adminPartenaire->setPassword($values->password);
-        $adminPartenaire->setNomComplet($values->nomComplet);
-        $adminPartenaire->setAdresse($values->adresse);
-        $adminPartenaire->setTelephone($values->telephone);
-        $adminPartenaire->setEmail($values->email);
         $adminPartenaire->setPartenaire($partenaire);
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($adminPartenaire);
