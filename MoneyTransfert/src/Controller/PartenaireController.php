@@ -63,6 +63,7 @@ class PartenaireController extends AbstractController
     /**
      * @Route("/{id}/edit", name="adminPartenaireEdit", methods={"GET","POST"})
      */
+    
     public function edit(Request $request, Partenaire $partenaire,SerializerInterface $serializer,ValidatorInterface $validator,
                          EntityManagerInterface $entityManager): Response
     {
