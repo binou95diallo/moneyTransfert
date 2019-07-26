@@ -21,12 +21,13 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 /**
- * @Route("/adminPartenaire")
+ * @Route("/api")
  */
 class AdminPartenaireController extends AbstractController
 {
     /**
      * @Route("/", name="adminPartenaireIndex", methods={"GET"})
+     * @IsGranted("ROLE_ADMINPARTENAIRE")
      */
     public function index(AdminPartenaireRepository $adminPartenaireRepository): Response
     {
@@ -38,6 +39,7 @@ class AdminPartenaireController extends AbstractController
    
     /**
      * @Route("/ajout", name="adminPartenaireAjout", methods={"POST","GET"})
+     * @IsGranted("ROLE_ADMINPARTENAIRE")
      */
     public function ajout(Request $request,SerializerInterface $serializer, EntityManagerInterface $entityManager): Response
     {
@@ -55,6 +57,7 @@ class AdminPartenaireController extends AbstractController
 
     /**
      * @Route("/{id}", name="adminPartenaireShow", methods={"GET"})
+     * @IsGranted("ROLE_ADMINPARTENAIRE")
      */
     public function show(AdminPartenaire $adminPartenaire,AdminPartenaireRepository $adminPartenaireRepo,SerializerInterface $serializer): Response
     {
@@ -67,6 +70,7 @@ class AdminPartenaireController extends AbstractController
 
     /**
      * @Route("/{id}/edit", name="adminPartenaireEdit", methods={"GET","POST"})
+     * @IsGranted("ROLE_ADMINPARTENAIRE")
      */
     
     public function edit(Request $request, AdminPartenaire $adminPartenaire,SerializerInterface $serializer,ValidatorInterface $validator,

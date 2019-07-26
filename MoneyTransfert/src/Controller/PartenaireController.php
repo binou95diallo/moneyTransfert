@@ -17,14 +17,16 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 /**
- * @Route("/partenaire")
+ * @Route("/api")
  */
 class PartenaireController extends AbstractController
 {
     /**
      * @Route("/", name="partenaire_index", methods={"GET"})
+     * @IsGranted("ROLE_ADMIN")
      */
     public function index(PartenaireRepository $partenaireRepository): Response
     {
@@ -35,12 +37,18 @@ class PartenaireController extends AbstractController
 
     /**
      * @Route("/ajout", name="PartenaireAjout", methods={"POST","GET"})
+     * @IsGranted("ROLE_ADMIN")
      */
     public function ajout(Request $request,SerializerInterface $serializer, EntityManagerInterface $entityManager): Response
     {
         $Partenaire = new Partenaire();
         $form = $this->createForm(PartenaireType::class, $Partenaire);
         $form->handleRequest($request);
+        $values = json_decode($request->getContent());
+        if(isset($values->username,$values->password)) {
+            $partenaire = new Partenaire();
+            $partenaire->setNinea($values->ninea);
+        }
             $Partenaire=$serializer->deserialize($request->getContent(), Partenaire::class, 'json');
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($Partenaire);
@@ -49,7 +57,8 @@ class PartenaireController extends AbstractController
 }
 
     /**
-     * @Route("/{id}", name="PartenaireShow", methods={"GET"})
+     * @Route("/partenaire/{id}", name="PartenaireShow", methods={"GET"})
+     * @IsGranted("ROLE_ADMIN")
      */
     public function show(Partenaire $partenaire,PartenaireRepository $partenaireRepo,SerializerInterface $serializer): Response
     {
@@ -62,6 +71,7 @@ class PartenaireController extends AbstractController
 
     /**
      * @Route("/{id}/edit", name="adminPartenaireEdit", methods={"GET","POST"})
+     * @IsGranted("ROLE_ADMINPARTENAIRE")
      */
     
     public function edit(Request $request, Partenaire $partenaire,SerializerInterface $serializer,ValidatorInterface $validator,
