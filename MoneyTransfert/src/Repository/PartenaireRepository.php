@@ -10,6 +10,7 @@ use Symfony\Bridge\Doctrine\RegistryInterface;
  * @method Partenaire|null find($id, $lockMode = null, $lockVersion = null)
  * @method Partenaire|null findOneBy(array $criteria, array $orderBy = null)
  * @method Partenaire[]    findAll()
+ * @method Partenaire|null findByUsername($username)
  * @method Partenaire[]    findBy(array $criteria, array $orderBy = null, $limit = null, $offset = null)
  */
 class PartenaireRepository extends ServiceEntityRepository
@@ -36,15 +37,13 @@ class PartenaireRepository extends ServiceEntityRepository
     }
     */
 
-    /*
-    public function findOneBySomeField($value): ?Partenaire
+    public function findOneByUsername($value): ?Partenaire
     {
         return $this->createQueryBuilder('p')
-            ->andWhere('p.exampleField = :val')
+            ->andWhere('p.username = :val')
             ->setParameter('val', $value)
             ->getQuery()
             ->getOneOrNullResult()
         ;
     }
-    */
 }

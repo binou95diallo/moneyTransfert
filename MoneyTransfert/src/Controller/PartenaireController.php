@@ -41,12 +41,15 @@ class PartenaireController extends AbstractController
      */
     public function ajout(Request $request,SerializerInterface $serializer, EntityManagerInterface $entityManager): Response
     {
+            $values = json_decode($request->getContent());
             $Partenaire=$serializer->deserialize($request->getContent(), Partenaire::class, 'json');
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($Partenaire);
             $entityManager->flush();
-            return new Response('users adding', Response::HTTP_CREATED);
-           // return new RedirectResponse('../bankAccount/ajout');
+            $part=$entityManager->getRepository(Partenaire::class)->findOneByUsername($values->username);
+            $partId=$part->getId();
+            echo $partId;
+           return new RedirectResponse('../bankAccount/ajout?id='.$partId);
 }
 
     /**

@@ -45,10 +45,10 @@ class BankAccountController extends AbstractController
         
         $bankAccount = new BankAccount();
         $values=json_decode($request->getContent());
-        $partenaire=$this->getDoctrine()->getManager()->getRepository(Partenaire::class)->find($values->partenaire);
+        //$partenaire=$this->getDoctrine()->getManager()->getRepository(Partenaire::class)->find($values->partenaire);
         $bankAccount->setNumeroCompte($values->numeroCompte);
         $bankAccount->setSolde($values->solde);
-        $bankAccount->setPartenaire($partenaire);
+        $bankAccount->setPartenaire($bankAccount->getId());
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($bankAccount);
         $entityManager->flush();

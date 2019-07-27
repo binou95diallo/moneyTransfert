@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
+use App\Repository\UserRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -11,8 +12,12 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Serializer\Serializer;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use FOS\RestBundle\Controller\Annotations as Rest;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\Serializer\Encoder\JsonEncoder;
+use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 
 /**
  * @Route("/api")
@@ -88,5 +93,82 @@ class SecurityController extends AbstractController
         return new Response($data, 200, [
             'Content-Type' => 'application/json'
         ]);
+    }
+
+     /**
+     * @Route("/users/{id}/edit", name="usersEdit", methods={"GET","POST"})
+     * @IsGranted("ROLE_ADMIN")
+     */
+    
+    public function edit(Request $request, User $user,SerializerInterface $serializer,ValidatorInterface $validator,
+                         EntityManagerInterface $entityManager): Response
+    {
+        $data=[];
+        $user = $entityManager->getRepository(User::class)->find($user->getId());
+        $encoders = [new JsonEncoder()];
+            $normalizers = [
+                (new ObjectNormalizer())
+                    ->setIgnoredAttributes([
+                        //'updateAt'
+                    ])
+            ];
+            $serializer = new Serializer($normalizers, $encoders);
+            $jsonObject = $serializer->serialize($user, 'json', [
+                'circular_reference_handler' => function ($object) {
+                    return $object->getId();
+                }
+            ]);
+
+        $data = json_decode($jsonObject,true);
+        foreach ($data as $key => $value){
+         
+            if($key!="id" && !empty($value)) {
+
+                if ($key=="username") {
+                    $user->setUsername("yacine");
+                }
+                elseif ($key=="passWord") {
+                    $user->setPassWord("124");
+                }
+                elseif ($key=="profil") {
+                    $user->setProfil("user");
+                }
+                elseif ($key=="status") {
+                    $user->setStatus("bloqué");
+                }
+               
+            }
+        }
+        $errors = $validator->validate($user);
+        if(count($errors)) {
+            $errors = $serializer->serialize($errors, 'json');
+            return new Response($errors, 500, [
+                'Content-Type' => 'application/json'
+            ]);
+        }
+        $entityManager->flush();
+        $data = [
+            'status' => 200,
+            'message' => 'L \'utilisateur a bien été mis à jour'
+        ];
+        return new JsonResponse($data);
+ 
+    }
+    /**
+     * @Route("/users/bloquer", name="userBlock", methods={"GET","POST"})
+     * @IsGranted("ROLE_ADMIN")
+     */
+    public function userBloquer(Request $request, UserRepository $userRepo,EntityManagerInterface $entityManager): Response
+    {
+        $values = json_decode($request->getContent());
+        $user=$userRepo->findOneByUsername($values->username);
+        $user->setStatus("bloquer");
+        $user->setRoles(["ROLE_USERLOCK"]);
+        $entityManager->flush();
+        $data = [
+            'status' => 200,
+            'message' => 'utilisateur bloqué'
+        ];
+        return new JsonResponse($data);
     }
 }
