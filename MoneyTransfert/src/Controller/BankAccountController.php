@@ -68,36 +68,51 @@ class BankAccountController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/edit", name="bankAccountEdit", methods={"GET","POST"})
+     * @Route("/bankAccount/{id}/edit", name="BankAEdit", methods={"GET","POST"})
+     * @IsGranted("ROLE_ADMIN")
      */
-    public function edit(Request $request, BankAccount $bankAccount): Response
+    
+    public function edit(Request $request, BankAccount $bankA,SerializerInterface $serializer,ValidatorInterface $validator,
+                         EntityManagerInterface $entityManager): Response
     {
-        $form = $this->createForm(BankAccountType::class, $bankAccount);
-        $form->handleRequest($request);
+        $data=[];
+        $bankA = $entityManager->getRepository(BankAccount::class)->find($bankA->getId());
+        $encoders = [new JsonEncoder()];
+            $normalizers = [
+                (new ObjectNormalizer())
+                    ->setIgnoredAttributes([
+                        //'updateAt'
+                    ])
+            ];
+            $serializer = new Serializer($normalizers, $encoders);
+            $jsonObject = $serializer->serialize($bankA, 'json', [
+                'circular_reference_handler' => function ($object) {
+                    return $object->getId();
+                }
+            ]);
 
-        if ($form->isSubmitted() && $form->isValid()) {
-            $this->getDoctrine()->getManager()->flush();
+        $data = json_decode($jsonObject,true);
+        foreach ($data as $key => $value){
+         
+            if($key!="id" && !empty($value)) {
 
-            return $this->redirectToRoute('bank_account_index');
+                $bankA->setSolde(2000000);
+               
+            }
         }
-
-        return $this->render('bank_account/edit.html.twig', [
-            'bank_account' => $bankAccount,
-            'form' => $form->createView(),
-        ]);
-    }
-
-    /**
-     * @Route("/{id}", name="bank_account_delete", methods={"DELETE"})
-     */
-    public function delete(Request $request, BankAccount $bankAccount): Response
-    {
-        if ($this->isCsrfTokenValid('delete'.$bankAccount->getId(), $request->request->get('_token'))) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->remove($bankAccount);
-            $entityManager->flush();
+        $errors = $validator->validate($bankA);
+        if(count($errors)) {
+            $errors = $serializer->serialize($errors, 'json');
+            return new Response($errors, 500, [
+                'Content-Type' => 'application/json'
+            ]);
         }
-
-        return $this->redirectToRoute('bank_account_index');
+        $entityManager->flush();
+        $data = [
+            'status' => 200,
+            'message' => 'Le solde a bien été mis à jour'
+        ];
+        return new JsonResponse($data);
+ 
     }
 }

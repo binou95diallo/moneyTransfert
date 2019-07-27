@@ -138,18 +138,4 @@ class PartenaireController extends AbstractController
         return new JsonResponse($data);
  
     }
-
-    /**
-     * @Route("/{id}", name="partenaireDelete", methods={"DELETE"})
-     */
-    public function delete(Request $request, Partenaire $partenaire): Response
-    {
-        if ($this->isCsrfTokenValid('delete'.$partenaire->getId(), $request->request->get('_token'))) {
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->remove($partenaire);
-            $entityManager->flush();
-        }
-
-        return new Response('users deleted', Response::HTTP_CREATED);
-    }
 }
