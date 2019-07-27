@@ -19,9 +19,10 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 
 /**
- * @Route("/adminPartenaire")
+ * @Route("/api")
  */
 class AdminPartenaireController extends AbstractController
 {
@@ -37,7 +38,8 @@ class AdminPartenaireController extends AbstractController
 
    
     /**
-     * @Route("/ajout", name="adminPartenaireAjout", methods={"POST","GET"})
+     * @Route("/adminP/ajout", name="adminPartenaireAjout", methods={"POST","GET"})
+     * @IsGranted("ROLE_ADMINPARTENAIRE")
      */
     public function ajout(Request $request,SerializerInterface $serializer, EntityManagerInterface $entityManager): Response
     {
@@ -61,7 +63,8 @@ class AdminPartenaireController extends AbstractController
 }
 
     /**
-     * @Route("/{id}", name="adminPartenaireShow", methods={"GET"})
+     * @Route("/adminP/{id}", name="adminPartenaireShow", methods={"GET"})
+     * @IsGranted("ROLE_ADMINPARTENAIRE")
      */
     public function show(AdminPartenaire $adminPartenaire,AdminPartenaireRepository $adminPartenaireRepo,SerializerInterface $serializer): Response
     {
@@ -73,7 +76,8 @@ class AdminPartenaireController extends AbstractController
     }
 
     /**
-     * @Route("/{id}/edit", name="adminPartenaireEdit", methods={"GET","POST"})
+     * @Route("/adminP/{id}/edit", name="adminPartenaireEdit", methods={"GET","POST"})
+     * @IsGranted("ROLE_ADMINPARTENAIRE")
      */
     
     public function edit(Request $request, AdminPartenaire $adminPartenaire,SerializerInterface $serializer,ValidatorInterface $validator,

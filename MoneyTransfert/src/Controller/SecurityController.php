@@ -12,13 +12,14 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
+use FOS\RestBundle\Controller\Annotations as Rest;
 
 /**
  * @Route("/api")
  */
 class SecurityController extends AbstractController
 {
-    /**
+     /**
      * @Route("/register", name="register", methods={"POST"})
      */
     public function register(Request $request, UserPasswordEncoderInterface $passwordEncoder, EntityManagerInterface $entityManager, SerializerInterface $serializer, ValidatorInterface $validator)
@@ -28,7 +29,19 @@ class SecurityController extends AbstractController
             $user = new User();
             $user->setUsername($values->username);
             $user->setPassword($passwordEncoder->encodePassword($user, $values->password));
-            $user->setRoles($user->getRoles());
+            $user->setProfil($values->profil);
+            $profil=$values->profil;
+            $roles=[];
+            if($profil=="admin"){
+                $roles=["ROLE_ADMIN"];
+            }
+            elseif ($profil=="user") {
+                $roles=["ROLE_USER"];
+            }
+            elseif ($profil=="partenaire" || $profil=="adminPartenaire") {
+                $roles=["ROLE_ADMINPARTENAIRE"];
+            }
+            $user->setRoles($roles);
             $errors = $validator->validate($user);
             if(count($errors)) {
                 $errors = $serializer->serialize($errors, 'json');
@@ -62,6 +75,18 @@ class SecurityController extends AbstractController
         return $this->json([
             'username' => $user->getUsername(),
             'roles' => $user->getRoles()
+        ]);
+    }
+
+     /**
+     * @Rest\Get("/users", name="usersList")
+     */
+    public function listAction(SerializerInterface $serializer):Response
+    {
+        $users = $this->getDoctrine()->getRepository('App:User')->findAll();
+        $data = $serializer->serialize($users, 'json');
+        return new Response($data, 200, [
+            'Content-Type' => 'application/json'
         ]);
     }
 }

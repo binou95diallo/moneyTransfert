@@ -17,9 +17,11 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 
 /**
- * @Route("/partenaire")
+ * @Route("/api")
  */
 class PartenaireController extends AbstractController
 {
@@ -34,22 +36,22 @@ class PartenaireController extends AbstractController
     }
 
     /**
-     * @Route("/ajout", name="PartenaireAjout", methods={"POST","GET"})
+     * @Route("/partenaire/ajout", name="PartenaireAjout", methods={"POST","GET"})
+     * @IsGranted("ROLE_ADMIN")
      */
     public function ajout(Request $request,SerializerInterface $serializer, EntityManagerInterface $entityManager): Response
     {
-        $Partenaire = new Partenaire();
-        $form = $this->createForm(PartenaireType::class, $Partenaire);
-        $form->handleRequest($request);
             $Partenaire=$serializer->deserialize($request->getContent(), Partenaire::class, 'json');
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($Partenaire);
             $entityManager->flush();
-    return new Response('users adding', Response::HTTP_CREATED);
+            return new Response('users adding', Response::HTTP_CREATED);
+           // return new RedirectResponse('../bankAccount/ajout');
 }
 
     /**
-     * @Route("/{id}", name="PartenaireShow", methods={"GET"})
+     * @Route("/partenaire/{id}", name="PartenaireShow", methods={"GET"})
+     * @IsGranted("ROLE_ADMIN")
      */
     public function show(Partenaire $partenaire,PartenaireRepository $partenaireRepo,SerializerInterface $serializer): Response
     {
@@ -62,6 +64,7 @@ class PartenaireController extends AbstractController
 
     /**
      * @Route("/{id}/edit", name="adminPartenaireEdit", methods={"GET","POST"})
+     * @IsGranted("ROLE_ADMIN")
      */
     
     public function edit(Request $request, Partenaire $partenaire,SerializerInterface $serializer,ValidatorInterface $validator,
