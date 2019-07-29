@@ -3,8 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Entity\Partenaire;
 use Doctrine\ORM\EntityManagerInterface;
 use App\Repository\UserRepository;
+use App\Repository\PartenaireRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -35,6 +37,13 @@ class SecurityController extends AbstractController
             $user->setUsername($values->username);
             $user->setPassword($passwordEncoder->encodePassword($user, $values->password));
             $user->setProfil($values->profil);
+            $user->setStatus($values->status);
+            $user->setNomComplet($values->nomComplet);
+            $user->setAdresse($values->adresse);
+            $user->setTelephone($values->telephone);
+            $user->setEmail($values->email);
+            $partenaire=$this->getDoctrine()->getManager()->getRepository(Partenaire::class)->find($values->partenaire);
+            $user->setPartenaire($partenaire);
             $profil=$values->profil;
             $roles=[];
             if($profil=="admin"){
@@ -89,8 +98,20 @@ class SecurityController extends AbstractController
     public function listAction(SerializerInterface $serializer):Response
     {
         $users = $this->getDoctrine()->getRepository('App:User')->findAll();
-        $data = $serializer->serialize($users, 'json');
-        return new Response($data, 200, [
+        $encoders = [new JsonEncoder()];
+            $normalizers = [
+                (new ObjectNormalizer())
+                    ->setIgnoredAttributes([
+                        //'updateAt'
+                    ])
+            ];
+            $serializer = new Serializer($normalizers, $encoders);
+            $jsonObject = $serializer->serialize($users, 'json', [
+                'circular_reference_handler' => function ($object) {
+                    return $object->getId();
+                }
+            ]);
+        return new Response($jsonObject, 200, [
             'Content-Type' => 'application/json'
         ]);
     }
@@ -135,6 +156,15 @@ class SecurityController extends AbstractController
                 }
                 elseif ($key=="status") {
                     $user->setStatus("bloqué");
+                }
+                elseif ($key=="nomComplet") {
+                    $user->setNomComplet("diallo");
+                }
+                elseif ($key=="adresse") {
+                    $user->setAdresse("fann hock");
+                }
+                elseif ($key=="telephone") {
+                    $user->setTelephone("7746200018200");
                 }
                
             }

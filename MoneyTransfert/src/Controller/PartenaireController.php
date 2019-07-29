@@ -19,6 +19,7 @@ use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Component\HttpFoundation\RedirectResponse;
+use FOS\RestBundle\Controller\Annotations as Rest;
 
 /**
  * @Route("/api")
@@ -41,15 +42,21 @@ class PartenaireController extends AbstractController
      */
     public function ajout(Request $request,SerializerInterface $serializer, EntityManagerInterface $entityManager): Response
     {
-            $values = json_decode($request->getContent());
+           // $values = json_decode($request->getContent());
             $Partenaire=$serializer->deserialize($request->getContent(), Partenaire::class, 'json');
             $entityManager = $this->getDoctrine()->getManager();
             $entityManager->persist($Partenaire);
             $entityManager->flush();
-            $part=$entityManager->getRepository(Partenaire::class)->findOneByUsername($values->username);
-            $partId=$part->getId();
-            echo $partId;
-           return new RedirectResponse('../bankAccount/ajout?id='.$partId);
+            //$part=$entityManager->getRepository(Partenaire::class)->findOneByUsername($values->username);
+            //$partId=$part->getId();
+            //echo $partId;
+           //return new RedirectResponse('../bankAccount/ajout?id='.$partId);
+           $data = [
+            'status' => 201,
+            'message' => 'L\'utilisateur a été créé'
+        ];
+
+        return new JsonResponse($data, 201);
 }
 
     /**
@@ -90,35 +97,31 @@ class PartenaireController extends AbstractController
             ]);
 
         $data = json_decode($jsonObject,true);
+        $values = json_decode($request->getContent());
         foreach ($data as $key => $value){
          
             if($key!="id" && !empty($value)) {
                 if($key=="matriculePartenaire"){
-                    $partenaire->setMatriculePartenaire("bd018");
+                    $partenaire->setMatriculePartenaire($values->matricule);
                 }
                 elseif ($key=="nomComplet") {
-                    $partenaire->setNomComplet("max");
+                    $partenaire->setNomComplet($values->nomComplet);
                 }
-                elseif ($key=="login") {
-                    $partenaire->setLogin("hello");
-                }
-                elseif ($key=="passWord") {
-                    $partenaire->setPassWord("124max");
-                }
+               
                 elseif ($key=="ninea") {
-                    $partenaire->setNinea("abcdf1230");
+                    $partenaire->setNinea($values->ninea);
                 }
                 elseif ($key=="adresse") {
-                    $partenaire->setAdresse("mermoz");
+                    $partenaire->setAdresse($values->adresse);
                 }
                 elseif ($key=="telephone") {
-                    $partenaire->setTelephone("77400032458");
+                    $partenaire->setTelephone($values->telephone);
                 }
                 elseif ($key=="email") {
-                    $partenaire->setEmail("good@good.fr");
+                    $partenaire->setEmail($values->email);
                 }
                 elseif ($key=="status") {
-                    $partenaire->setStatus("débloqué");
+                    $partenaire->setStatus($values->status);
                 }
                
             }
@@ -137,5 +140,29 @@ class PartenaireController extends AbstractController
         ];
         return new JsonResponse($data);
  
+    }
+
+    /**
+     * @Rest\Get("/partenaire", name="partenaireList")
+     */
+    public function listAction(SerializerInterface $serializer):Response
+    {
+        $users = $this->getDoctrine()->getRepository('App:Partenaire')->findAll();
+        $encoders = [new JsonEncoder()];
+            $normalizers = [
+                (new ObjectNormalizer())
+                    ->setIgnoredAttributes([
+                        //'updateAt'
+                    ])
+            ];
+            $serializer = new Serializer($normalizers, $encoders);
+            $jsonObject = $serializer->serialize($users, 'json', [
+                'circular_reference_handler' => function ($object) {
+                    return $object->getId();
+                }
+            ]);
+        return new Response($jsonObject, 200, [
+            'Content-Type' => 'application/json'
+        ]);
     }
 }

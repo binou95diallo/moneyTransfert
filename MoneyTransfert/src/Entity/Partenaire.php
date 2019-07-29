@@ -28,16 +28,6 @@ class Partenaire
     /**
      * @ORM\Column(type="string", length=255)
      */
-    private $username;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
-    private $password;
-
-    /**
-     * @ORM\Column(type="string", length=255)
-     */
     private $nomComplet;
 
     /**
@@ -61,28 +51,24 @@ class Partenaire
     private $email;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\AdminPartenaire", mappedBy="partenaire")
-     */
-    private $AdminP;
-
-    /**
      * @ORM\OneToOne(targetEntity="App\Entity\BankAccount", mappedBy="partenaire", cascade={"persist", "remove"})
      */
     private $bankAccount;
 
     /**
-     * @ORM\OneToMany(targetEntity="App\Entity\UserPartenaire", mappedBy="partenaire")
+     * @ORM\Column(type="string", length=255, nullable=true)
      */
-    private $userP;
+    private $raisonSocial;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\User", mappedBy="partenaire")
+     */
+    private $users;
 
     public function __construct()
     {
-        $this->AdminP = new ArrayCollection();
-        $this->userP = new ArrayCollection();
+        $this->users = new ArrayCollection();
     }
-
-
-    
     
     public function getId(): ?int
     {
@@ -97,30 +83,6 @@ class Partenaire
     public function setMatricule(string $matricule): self
     {
         $this->matricule = $matricule;
-
-        return $this;
-    }
-
-    public function getUsername(): ?string
-    {
-        return $this->username;
-    }
-
-    public function setUsername(string $username): self
-    {
-        $this->username = $username;
-
-        return $this;
-    }
-
-    public function getPassword(): ?string
-    {
-        return $this->password;
-    }
-
-    public function setPassword(string $password): self
-    {
-        $this->password = $password;
 
         return $this;
     }
@@ -185,82 +147,47 @@ class Partenaire
         return $this;
     }
 
-    /**
-     * @return Collection|AdminPartenaire[]
-     */
-    public function getAdminP(): Collection
+    public function getRaisonSocial(): ?string
     {
-        return $this->AdminP;
+        return $this->raisonSocial;
     }
 
-    public function addAdminP(AdminPartenaire $adminP): self
+    public function setRaisonSocial(?string $raisonSocial): self
     {
-        if (!$this->AdminP->contains($adminP)) {
-            $this->AdminP[] = $adminP;
-            $adminP->setPartenaire($this);
+        $this->raisonSocial = $raisonSocial;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|User[]
+     */
+    public function getUsers(): Collection
+    {
+        return $this->users;
+    }
+
+    public function addUser(User $user): self
+    {
+        if (!$this->users->contains($user)) {
+            $this->users[] = $user;
+            $user->setPartenaire($this);
         }
 
         return $this;
     }
 
-    public function removeAdminP(AdminPartenaire $adminP): self
+    public function removeUser(User $user): self
     {
-        if ($this->AdminP->contains($adminP)) {
-            $this->AdminP->removeElement($adminP);
+        if ($this->users->contains($user)) {
+            $this->users->removeElement($user);
             // set the owning side to null (unless already changed)
-            if ($adminP->getPartenaire() === $this) {
-                $adminP->setPartenaire(null);
+            if ($user->getPartenaire() === $this) {
+                $user->setPartenaire(null);
             }
         }
 
         return $this;
     }
 
-    public function getBankAccount(): ?BankAccount
-    {
-        return $this->bankAccount;
-    }
-
-    public function setBankAccount(BankAccount $bankAccount): self
-    {
-        $this->bankAccount = $bankAccount;
-
-        // set the owning side of the relation if necessary
-        if ($this !== $bankAccount->getPartenaire()) {
-            $bankAccount->setPartenaire($this);
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Collection|UserPartenaire[]
-     */
-    public function getUserP(): Collection
-    {
-        return $this->userP;
-    }
-
-    public function addUserP(UserPartenaire $userP): self
-    {
-        if (!$this->userP->contains($userP)) {
-            $this->userP[] = $userP;
-            $userP->setPartenaire($this);
-        }
-
-        return $this;
-    }
-
-    public function removeUserP(UserPartenaire $userP): self
-    {
-        if ($this->userP->contains($userP)) {
-            $this->userP->removeElement($userP);
-            // set the owning side to null (unless already changed)
-            if ($userP->getPartenaire() === $this) {
-                $userP->setPartenaire(null);
-            }
-        }
-
-        return $this;
-    }
 }

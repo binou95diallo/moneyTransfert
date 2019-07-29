@@ -20,6 +20,7 @@ use Symfony\Component\Serializer\Encoder\JsonEncoder;
 use Symfony\Component\Serializer\Normalizer\ObjectNormalizer;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
+use FOS\RestBundle\Controller\Annotations as Rest;
 
 /**
  * @Route("/api")
@@ -45,10 +46,11 @@ class BankAccountController extends AbstractController
         
         $bankAccount = new BankAccount();
         $values=json_decode($request->getContent());
-        //$partenaire=$this->getDoctrine()->getManager()->getRepository(Partenaire::class)->find($values->partenaire);
+        $partenaire=$this->getDoctrine()->getManager()->getRepository(Partenaire::class)->find($values->partenaire);
         $bankAccount->setNumeroCompte($values->numeroCompte);
         $bankAccount->setSolde($values->solde);
-        $bankAccount->setPartenaire($bankAccount->getId());
+        //$bankAccount->setPartenaire($bankAccount->getId());
+        $bankAccount->setPartenaire($partenaire);
         $entityManager = $this->getDoctrine()->getManager();
         $entityManager->persist($bankAccount);
         $entityManager->flush();
@@ -114,5 +116,29 @@ class BankAccountController extends AbstractController
         ];
         return new JsonResponse($data);
  
+    }
+
+     /**
+     * @Rest\Get("/bankAccount", name="compteList")
+     */
+    public function listAction(SerializerInterface $serializer):Response
+    {
+        $compte = $this->getDoctrine()->getRepository('App:BankAccount')->findAll();
+        $encoders = [new JsonEncoder()];
+            $normalizers = [
+                (new ObjectNormalizer())
+                    ->setIgnoredAttributes([
+                        //'updateAt'
+                    ])
+            ];
+            $serializer = new Serializer($normalizers, $encoders);
+            $jsonObject = $serializer->serialize($compte, 'json', [
+                'circular_reference_handler' => function ($object) {
+                    return $object->getId();
+                }
+            ]);
+        return new Response($jsonObject, 200, [
+            'Content-Type' => 'application/json'
+        ]);
     }
 }
