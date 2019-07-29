@@ -186,14 +186,31 @@ class SecurityController extends AbstractController
     }
     /**
      * @Route("/users/bloquer", name="userBlock", methods={"GET","POST"})
-     * @IsGranted("ROLE_ADMIN")
+     *  @Route("/users/debloquer", name="userDeblock", methods={"GET","POST"})
      */
     public function userBloquer(Request $request, UserRepository $userRepo,EntityManagerInterface $entityManager): Response
     {
         $values = json_decode($request->getContent());
         $user=$userRepo->findOneByUsername($values->username);
-        $user->setStatus("bloquer");
-        $user->setRoles(["ROLE_USERLOCK"]);
+        echo $user->getStatus();
+        if($user->getStatus()=="bloqué"){
+            
+            if($user->getProfil()=="admin"){
+                $user->setRoles(["ROLE_ADMIN"]);
+            }
+            elseif ($user->getProfil()=="user") {
+                $user->setRoles(["ROLE_USER"]);
+            }
+            elseif ($user->getProfil()=="adminPartenaire") {
+                $user->setRoles(["ROLE_ADMINPARTENAIRE"]);
+            }
+            $user->setStatus("debloqué");
+        }
+        else {
+            $user->setStatus("bloqué");
+            $user->setRoles(["ROLE_USERLOCK"]);
+        }
+        
         $entityManager->flush();
         $data = [
             'status' => 200,
